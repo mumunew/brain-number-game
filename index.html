@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>益脑游戏</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF9EBB',
+                        secondary: '#9ED2BE',
+                        accent: '#FFD166',
+                        background: '#F9F7F7',
+                        text: '#4B3F72'
+                    },
+                    fontFamily: {
+                        sans: ['Arial Rounded MT Bold', 'Helvetica Rounded', 'Arial', 'sans-serif']
+                    },
+                    animation: {
+                        'bounce-light': 'bounce 0.5s ease-in-out',
+                        'pulse-light': 'pulse 1.5s infinite',
+                        'scale-in': 'scaleIn 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'celebrate': 'celebrate 1s ease-in-out'
+                    },
+                    keyframes: {
+                        scaleIn: {
+                            '0%': { transform: 'scale(0)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        celebrate: {
+                            '0%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.2)' },
+                            '100%': { transform: 'scale(1)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+            }
+            .btn-3d {
+                @apply relative transform transition-all duration-150 shadow-lg active:translate-y-1 active:shadow-md;
+            }
+            .btn-3d-primary {
+                @apply bg-primary text-white shadow-[0_4px_0_0_#FF7A9F] active:shadow-[0_2px_0_0_#FF7A9F];
+            }
+            .btn-3d-secondary {
+                @apply bg-secondary text-white shadow-[0_4px_0_0_#7FB798] active:shadow-[0_2px_0_0_#7FB798];
+            }
+            .btn-3d-accent {
+                @apply bg-accent text-text shadow-[0_4px_0_0_#E6BC5C] active:shadow-[0_2px_0_0_#E6BC5C];
+            }
+            .number-card {
+                @apply flex items-center justify-center text-4xl md:text-5xl font-bold rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-105 active:scale-95;
+                color: #374151; /* 柔和且清晰的深灰色 */
+            }
+            /* 去除按下时的文本变色效果 */
+
+            .number-card-correct {
+                @apply bg-secondary; /* 保持黑色文字 */
+            }
+            .number-card-incorrect {
+                @apply bg-red-400 animate-pulse-light; /* 保持黑色文字 */
+            }
+            .number-card-clicked {
+                @apply scale-95 shadow-inner opacity-70;
+            }
+
+
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen font-sans text-text overflow-x-hidden">
+    <!-- 背景图 -->
+    <div class="fixed inset-0 z-0 opacity-20">
+        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e7f49650e87544e9bddaa7443b4372cc~tplv-a9rns2rl98-image.image?rcl=202511081100159ECC2B437A07CCE77BB7&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765162836&x-signature=3nalaapYimg6crQnyIMI3neND4s%3D" 
+             alt="背景" class="w-full h-full object-cover">
+    </div>
+
+    <!-- 游戏容器 -->
+    <div class="relative z-10 container mx-auto px-4 py-8 max-w-3xl">
+        <!-- 顶部导航 -->
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-primary text-shadow-lg">益脑游戏</h1>
+            <div class="flex items-center gap-2">
+                <div class="bg-white rounded-2xl px-3 py-1 shadow-md inline-flex items-center">
+                    <span class="text-sm font-bold">当前关卡: </span>
+                    <span id="currentLevel" class="ml-1 text-lg font-bold text-primary">1</span>
+                    <span class="ml-1 text-sm font-bold"> / 4</span>
+                </div>
+                <button id="musicToggle" class="btn-3d btn-3d-secondary rounded-full w-8 h-8 flex items-center justify-center">
+                    <i class="fa fa-music text-sm"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 关卡信息已移至右上角音乐按钮下方 -->
+
+        <!-- 数字序列提示 -->
+        <div class="bg-white rounded-2xl p-2 shadow-lg mb-4 text-center">
+            <p class="text-lg font-bold mb-2">请按顺序点击数字:</p>
+            <div id="numberSequence" class="flex flex-wrap justify-center gap-1">
+                <!-- 数字序列将由JS动态生成 -->
+            </div>
+        </div>
+
+        <!-- 游戏格子区域 -->
+        <div id="gameBoard" class="bg-white rounded-3xl p-6 shadow-xl mb-8 aspect-square max-w-md mx-auto">
+            <!-- 游戏格子将由JS动态生成 -->
+        </div>
+
+        <!-- 控制按钮 -->
+        <div class="flex justify-center space-x-6">
+            <button id="restartButton" class="btn-3d btn-3d-primary rounded-xl px-8 py-4 text-xl font-bold">
+                重新开始
+            </button>
+            <button id="nextLevelButton" class="btn-3d btn-3d-secondary rounded-xl px-8 py-4 text-xl font-bold hidden">
+                下一关
+            </button>
+        </div>
+    </div>
+
+    <!-- 暂停菜单 -->
+    <div id="pauseMenu" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl animate-scale-in">
+            <h2 class="text-3xl font-bold text-primary text-center mb-8">游戏暂停</h2>
+            <div class="flex flex-col space-y-4">
+                <button id="resumeButton" class="btn-3d btn-3d-primary rounded-xl px-8 py-4 text-xl font-bold">
+                    继续游戏
+                </button>
+                <button id="restartFromPauseButton" class="btn-3d btn-3d-accent rounded-xl px-8 py-4 text-xl font-bold">
+                    重新开始本关
+                </button>
+                <button id="quitButton" class="btn-3d bg-gray-400 text-white shadow-[0_4px_0_0_#9CA3AF] active:shadow-[0_2px_0_0_#9CA3AF] rounded-xl px-8 py-4 text-xl font-bold">
+                    返回主页
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关卡完成弹窗 -->
+    <div id="levelCompleteModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl animate-scale-in">
+            <div class="text-center">
+                <div class="inline-block p-4 rounded-full bg-secondary bg-opacity-20 mb-4">
+                    <i class="fa fa-check-circle text-6xl text-secondary"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-primary mb-2">太棒了！</h2>
+                <p class="text-xl mb-6">你成功完成了第 <span id="completedLevel">1</span> 关</p>
+                <button id="nextLevelFromModalButton" class="btn-3d btn-3d-secondary rounded-xl px-8 py-4 text-xl font-bold">
+                    进入下一关
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏完成弹窗 -->
+    <div id="gameCompleteModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl animate-scale-in">
+            <div class="text-center">
+                <div class="relative mb-6">
+                    <div class="inline-block p-6 rounded-full bg-accent bg-opacity-20">
+                        <i class="fa fa-trophy text-7xl text-accent"></i>
+                    </div>
+                    <!-- 撒花效果将由JS动态生成 -->
+                    <div id="confetti" class="absolute inset-0"></div>
+                </div>
+                <h2 class="text-4xl font-bold text-primary mb-4">恭喜你！</h2>
+                <p class="text-xl mb-8">你成功完成了所有关卡！</p>
+                <button id="restartFromCompleteButton" class="btn-3d btn-3d-primary rounded-xl px-8 py-4 text-xl font-bold">
+                    再来一次
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 音效元素 -->
+    <audio id="correctSound" src="click.mp3" preload="auto"></audio>
+    <audio id="wrongSound" src="clickerror.m4a" preload="auto"></audio>
+    <audio id="levelCompleteSound" src="suc.mp3" preload="auto"></audio>
+    <audio id="gameCompleteSound" src="suc.mp3" preload="auto"></audio>
+    <audio id="backgroundMusic" preload="auto" loop></audio>
+
+    <script>
+        // 游戏状态
+        const gameState = {
+            currentLevel: 1,
+            currentNumber: 1,
+            gridSize: 3,
+            totalNumbers: 9,
+            isPaused: false,
+            isMuted: false,
+            gameCompleted: false
+        };
+
+        // DOM元素
+        const gameBoard = document.getElementById('gameBoard');
+        const currentLevelElement = document.getElementById('currentLevel');
+
+        const numberSequenceElement = document.getElementById('numberSequence');
+        const musicToggle = document.getElementById('musicToggle');
+        const pauseButton = document.getElementById('pauseButton');
+        const restartButton = document.getElementById('restartButton');
+        const nextLevelButton = document.getElementById('nextLevelButton');
+        const pauseMenu = document.getElementById('pauseMenu');
+        const resumeButton = document.getElementById('resumeButton');
+        const restartFromPauseButton = document.getElementById('restartFromPauseButton');
+        const quitButton = document.getElementById('quitButton');
+        const levelCompleteModal = document.getElementById('levelCompleteModal');
+        const completedLevelElement = document.getElementById('completedLevel');
+        const nextLevelFromModalButton = document.getElementById('nextLevelFromModalButton');
+        const gameCompleteModal = document.getElementById('gameCompleteModal');
+        const restartFromCompleteButton = document.getElementById('restartFromCompleteButton');
+        
+        // 音效元素
+        const correctSound = document.getElementById('correctSound');
+        const wrongSound = document.getElementById('wrongSound');
+        const levelCompleteSound = document.getElementById('levelCompleteSound');
+        const gameCompleteSound = document.getElementById('gameCompleteSound');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+
+        // 用于解决移动端音频自动播放限制
+        let userHasInteracted = false;
+
+        // 设置背景音乐初始音量为约 33%
+        backgroundMusic.volume = 0.33;
+
+        // 本地背景音乐列表
+        const backgroundTracks = ['bg1.mp3', 'bg2.mp3', 'bg3.mp3'];
+
+        // 当前背景音乐索引（用于避免重复）
+        let currentMusicIndex = -1;
+
+        // 初始化游戏
+        function initGame() {
+            // 设置事件监听器
+            setupEventListeners();
+            
+            // 开始第一关
+            startLevel(gameState.currentLevel);
+            
+            // 随机选择并播放初始背景音乐
+            changeBackgroundTrack(true);
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 音乐开关
+            musicToggle.addEventListener('click', toggleMusic);
+            
+            // 暂停按钮（如果存在才绑定）
+            if (pauseButton) {
+                pauseButton.addEventListener('click', togglePause);
+            }
+            
+            // 重新开始按钮
+            restartButton.addEventListener('click', restartGame);
+            
+            // 下一关按钮
+            nextLevelButton.addEventListener('click', goToNextLevel);
+            
+            // 暂停菜单按钮
+            resumeButton.addEventListener('click', togglePause);
+            restartFromPauseButton.addEventListener('click', restartCurrentLevel);
+            quitButton.addEventListener('click', quitToMain);
+            
+            // 关卡完成弹窗按钮
+            nextLevelFromModalButton.addEventListener('click', goToNextLevel);
+            
+            // 游戏完成弹窗按钮
+            restartFromCompleteButton.addEventListener('click', restartGame);
+        }
+
+        // 开始关卡
+        function startLevel(level) {
+            // 更新游戏状态
+            gameState.currentLevel = level;
+            gameState.currentNumber = 1;
+            gameState.gridSize = level + 2; // 3x3, 4x4, 5x5, 6x6
+            gameState.totalNumbers = gameState.gridSize * gameState.gridSize; // 数字数量等于网格大小的平方
+            gameState.gameCompleted = false;
+            
+            // 更新UI
+            currentLevelElement.textContent = level;
+            completedLevelElement.textContent = level;
+            
+            // 隐藏下一关按钮
+            nextLevelButton.classList.add('hidden');
+            
+
+            
+            // 生成数字序列提示
+            generateNumberSequence();
+            
+            // 生成游戏格子
+            generateGrid();
+        }
+
+        
+
+        // 生成数字序列提示
+        function generateNumberSequence() {
+            numberSequenceElement.innerHTML = '';
+            
+            for (let i = 1; i <= gameState.totalNumbers; i++) {
+                const numberBox = document.createElement('div');
+                numberBox.className = `w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                    i < gameState.currentNumber ? 'bg-secondary text-white' : 
+                    i === gameState.currentNumber ? 'bg-primary text-white animate-pulse-light' : 
+                    'bg-gray-200 text-gray-500'
+                }`;
+                numberBox.textContent = i;
+                numberBox.id = `sequence-${i}`;
+                numberSequenceElement.appendChild(numberBox);
+            }
+        }
+
+        // 生成游戏格子
+        function generateGrid() {
+            gameBoard.innerHTML = '';
+            
+            // 设置网格样式
+            gameBoard.style.display = 'grid';
+            gameBoard.style.gridTemplateColumns = `repeat(${gameState.gridSize}, 1fr)`;
+            gameBoard.style.gridTemplateRows = `repeat(${gameState.gridSize}, 1fr)`;
+            gameBoard.style.gap = '10px';
+            
+            // 生成随机数字
+            const numbers = generateRandomNumbers(gameState.totalNumbers);
+            
+            // 创建格子
+            for (let i = 0; i < gameState.gridSize * gameState.gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = `number-card`;
+                
+                // 根据数字设置不同的柔和背景色
+                const colors = [
+                    '#FFE5E5', '#E5F3FF', '#E5FFEE', '#FFF9E5', 
+                    '#FFE5F7', '#F3E5FF', '#E5FFFA', '#FFF3E5', '#F0E5FF'
+                ];
+                const colorIndex = numbers[i] % colors.length;
+                cell.style.backgroundColor = colors[colorIndex];
+                
+                cell.textContent = numbers[i];
+                cell.dataset.number = numbers[i];
+                
+                // 添加鼠标按下和松开事件
+                cell.addEventListener('mousedown', () => handleMouseDown(cell));
+                cell.addEventListener('mouseup', () => handleMouseUp(cell));
+                cell.addEventListener('mouseleave', () => handleMouseUp(cell));
+                
+                // 添加点击事件
+                cell.addEventListener('click', () => handleCellClick(cell));
+                
+                gameBoard.appendChild(cell);
+            }
+        }
+        
+        // 处理鼠标按下事件
+        function handleMouseDown(cell) {
+            // 如果游戏暂停或完成，则不处理
+            if (gameState.isPaused || gameState.gameCompleted) return;
+            
+            // 如果已经点击过，则不处理
+            if (cell.classList.contains('number-card-correct')) {
+                return;
+            }
+            // 保持文本颜色不变（黑色），不做任何处理
+        }
+        
+        // 处理鼠标松开事件
+        function handleMouseUp(cell) {
+            // 如果游戏暂停或完成，则不处理
+            if (gameState.isPaused || gameState.gameCompleted) return;
+            
+            // 如果已经点击过，则不处理
+            if (cell.classList.contains('number-card-correct')) {
+                return;
+            }
+            // 保持文本颜色不变
+        }
+
+        // 生成随机数字
+        function generateRandomNumbers(count) {
+            const numbers = Array.from({ length: count }, (_, i) => i + 1);
+            
+            // Fisher-Yates 洗牌算法
+            for (let i = numbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+            
+            return numbers;
+        }
+
+        // 处理格子点击
+        function handleCellClick(cell) {
+            // 首次用户交互时，尝试播放背景音乐以绕过自动播放限制
+            if (!userHasInteracted) {
+                userHasInteracted = true;
+                playBackgroundMusic();
+            }
+
+            // 如果游戏暂停或完成，则不处理点击
+            if (gameState.isPaused || gameState.gameCompleted) return;
+            
+            // 允许点击已被标记为正确的格子，以触发错误反馈（当它不是当前目标时）
+            
+            const clickedNumber = parseInt(cell.dataset.number);
+            
+            // 检查是否点击了正确的数字
+            if (clickedNumber === gameState.currentNumber) {
+                // 正确点击
+                handleCorrectClick(cell);
+            } else {
+                // 错误点击
+                handleWrongClick(cell);
+            }
+        }
+
+        // 处理正确点击
+        function handleCorrectClick(cell) {
+            // 播放正确音效
+            playSound(correctSound);
+            
+            // 延迟后更新格子样式
+            setTimeout(() => {
+                // 更新格子样式
+                cell.classList.add('number-card-correct');
+                
+                // 更新数字序列
+                const sequenceNumber = document.getElementById(`sequence-${gameState.currentNumber}`);
+                sequenceNumber.classList.remove('bg-primary', 'animate-pulse-light');
+                sequenceNumber.classList.add('bg-secondary');
+                
+                // 检查是否完成当前关卡
+                if (gameState.currentNumber === gameState.totalNumbers) {
+                    handleLevelComplete();
+                } else {
+                    // 准备下一个数字
+                    gameState.currentNumber++;
+                    
+                    // 更新数字序列
+                    const nextSequenceNumber = document.getElementById(`sequence-${gameState.currentNumber}`);
+                    nextSequenceNumber.classList.remove('bg-gray-200', 'text-gray-500');
+                    nextSequenceNumber.classList.add('bg-primary', 'text-white', 'animate-pulse-light');
+                }
+            }, 100);
+        }
+
+        // 处理错误点击
+        function handleWrongClick(cell) {
+            // 播放错误音效（使用克隆，确保在任何时刻都能触发）
+            playErrorSound();
+            
+            // 更新格子样式
+            cell.classList.add('number-card-incorrect');
+            
+            // 震动效果
+            gameBoard.classList.add('animate-bounce-light');
+            
+            // 移除错误样式，并恢复到原始状态
+            setTimeout(() => {
+                cell.classList.remove('number-card-incorrect');
+                gameBoard.classList.remove('animate-bounce-light');
+                // 文本颜色保持黑色，无需恢复
+            }, 500);
+        }
+
+
+
+        // 处理关卡完成
+        function handleLevelComplete() {
+            // 播放关卡完成音效
+            playSound(levelCompleteSound);
+            
+            // 过关后随机更换一首不同的背景音乐
+            changeBackgroundTrack(false);
+
+            // 检查是否完成所有关卡
+            if (gameState.currentLevel === 4) {
+                // 游戏完成
+                gameState.gameCompleted = true;
+                showGameCompleteModal();
+            } else {
+                // 显示关卡完成弹窗
+                showLevelCompleteModal();
+            }
+        }
+
+        // 显示关卡完成弹窗
+        function showLevelCompleteModal() {
+            levelCompleteModal.classList.remove('hidden');
+        }
+
+        // 显示游戏完成弹窗
+        function showGameCompleteModal() {
+            // 播放游戏完成音效
+            playSound(gameCompleteSound);
+            
+            // 显示游戏完成弹窗
+            gameCompleteModal.classList.remove('hidden');
+            
+            // 创建撒花效果
+            createConfetti();
+        }
+
+        // 创建撒花效果
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confetti');
+            
+            // 创建50个彩色小圆点
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                
+                // 随机颜色
+                const colors = ['#FF9EBB', '#9ED2BE', '#FFD166', '#8D99AE', '#EF476F'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 随机大小
+                const size = Math.floor(Math.random() * 10) + 5;
+                
+                // 随机位置
+                const left = Math.floor(Math.random() * 100);
+                const top = Math.floor(Math.random() * 100);
+                
+                // 随机旋转
+                const rotation = Math.floor(Math.random() * 360);
+                
+                // 设置样式
+                confetti.style.position = 'absolute';
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.borderRadius = '50%';
+                confetti.style.backgroundColor = randomColor;
+                confetti.style.left = `${left}%`;
+                confetti.style.top = `${top}%`;
+                confetti.style.transform = `rotate(${rotation}deg)`;
+                confetti.style.opacity = '0';
+                confetti.style.animation = `celebrate 1s ease-in-out ${i * 0.02}s forwards`;
+                
+                confettiContainer.appendChild(confetti);
+            }
+        }
+
+        // 进入下一关
+        function goToNextLevel() {
+            // 隐藏弹窗
+            levelCompleteModal.classList.add('hidden');
+            
+            // 更新关卡
+            gameState.currentLevel++;
+            
+            // 更新网格大小
+            gameState.gridSize = gameState.currentLevel + 2;
+            
+            // 开始下一关
+            startLevel(gameState.currentLevel);
+        }
+
+        // 重新开始当前关卡
+        function restartCurrentLevel() {
+            // 隐藏暂停菜单
+            pauseMenu.classList.add('hidden');
+            
+            // 重置游戏状态
+            gameState.currentNumber = 1;
+            gameState.isPaused = false;
+            
+            // 重新开始当前关卡
+            startLevel(gameState.currentLevel);
+        }
+
+        // 重新开始游戏
+        function restartGame() {
+            // 隐藏所有弹窗
+            pauseMenu.classList.add('hidden');
+            levelCompleteModal.classList.add('hidden');
+            gameCompleteModal.classList.add('hidden');
+            
+            // 重置游戏状态
+            gameState.currentLevel = 1;
+            gameState.currentNumber = 1;
+            gameState.gridSize = 3;
+            gameState.isPaused = false;
+            gameState.gameCompleted = false;
+            
+            // 开始第一关
+            startLevel(gameState.currentLevel);
+        }
+
+        // 返回主页
+        function quitToMain() {
+            // 隐藏暂停菜单
+            pauseMenu.classList.add('hidden');
+            
+            // 重置游戏状态
+            gameState.currentLevel = 1;
+            gameState.currentNumber = 1;
+            gameState.gridSize = 3;
+            gameState.isPaused = false;
+            gameState.gameCompleted = false;
+            
+            // 开始第一关
+            startLevel(gameState.currentLevel);
+        }
+
+        // 切换暂停状态
+        function togglePause() {
+            gameState.isPaused = !gameState.isPaused;
+            
+            if (gameState.isPaused) {
+                // 暂停游戏
+                pauseMenu.classList.remove('hidden');
+                if (pauseButton) {
+                    pauseButton.innerHTML = '<i class="fa fa-play text-xl"></i>';
+                }
+                backgroundMusic.pause();
+            } else {
+                // 继续游戏
+                pauseMenu.classList.add('hidden');
+                if (pauseButton) {
+                    pauseButton.innerHTML = '<i class="fa fa-pause text-xl"></i>';
+                }
+                
+                if (!gameState.isMuted) {
+                    playBackgroundMusic();
+                }
+            }
+        }
+
+        // 切换音乐
+        function toggleMusic() {
+            // 标记用户已交互
+            if (!userHasInteracted) {
+                userHasInteracted = true;
+            }
+
+            gameState.isMuted = !gameState.isMuted;
+            
+            if (gameState.isMuted) {
+                // 静音
+                musicToggle.innerHTML = '<i class="fa fa-volume-off text-xl"></i>';
+                backgroundMusic.pause();
+            } else {
+                // 取消静音
+                musicToggle.innerHTML = '<i class="fa fa-music text-xl"></i>';
+                
+                if (!gameState.isPaused) {
+                    playBackgroundMusic();
+                }
+            }
+        }
+
+        // 随机更换背景音乐（确保与当前曲目不同，初始化允许任意）
+        function changeBackgroundTrack(initial = false) {
+            let nextIndex;
+            do {
+                nextIndex = Math.floor(Math.random() * backgroundTracks.length);
+            } while (!initial && backgroundTracks.length > 1 && nextIndex === currentMusicIndex);
+
+            currentMusicIndex = nextIndex;
+            backgroundMusic.src = backgroundTracks[currentMusicIndex];
+            backgroundMusic.load();
+
+            if (!gameState.isMuted && !gameState.isPaused) {
+                backgroundMusic.play().catch(error => {
+                    console.log('背景音乐播放失败:', error);
+                });
+            }
+        }
+
+        // 播放背景音乐
+        function playBackgroundMusic() {
+            if (!gameState.isMuted && !gameState.isPaused) {
+                backgroundMusic.play().catch(error => {
+                    console.log('背景音乐播放失败:', error);
+                });
+            }
+        }
+
+        // 播放音效
+        function playSound(sound) {
+            if (!gameState.isMuted) {
+                try {
+                    // 先暂停，重置到开头，避免连续点击时不触发
+                    sound.pause();
+                    sound.currentTime = 0;
+                    sound.play().catch(error => {
+                        console.log('音效播放失败:', error);
+                    });
+                } catch (error) {
+                    console.log('音效播放异常:', error);
+                }
+            }
+        }
+
+        // 专用于错误点击的稳健播放（克隆节点可并发播放，避免状态干扰）
+        function playErrorSound() {
+            if (gameState.isMuted) return;
+            try {
+                const clone = wrongSound.cloneNode(true);
+                clone.volume = wrongSound.volume != null ? wrongSound.volume : 1;
+                clone.play().catch(error => {
+                    console.log('错误音效播放失败:', error);
+                });
+                // 播放结束后清理克隆节点（避免内存泄漏）
+                clone.addEventListener('ended', () => {
+                    clone.remove();
+                });
+                // 将克隆暂时添加到文档，确保在部分浏览器下可播放
+                document.body.appendChild(clone);
+            } catch (error) {
+                console.log('错误音效播放异常:', error);
+            }
+        }
+
+        // 初始化游戏
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+
+    <!-- 页脚 -->
+    <footer class="text-center text-gray-500 text-sm py-4">
+        <p>© 2005 brainn.mumulife.net 版权所有</p>
+    </footer>
+</body>
+</html>
